@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:expense_app/login%20page.dart';
+import 'package:expense_app/UI/login%20page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +9,7 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Timer(Duration(seconds: 3),(){
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>loginPage()));
+     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>loginPage()));
     } );
     return Scaffold(
       appBar: AppBar(
