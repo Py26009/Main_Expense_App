@@ -2,15 +2,27 @@ import 'dart:developer';
 
 import 'package:expense_app/Data/local/Models/user_Model.dart';
 import 'package:expense_app/Data/local/db_helper.dart';
+import 'package:expense_app/UI/login%20page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class CreateAccount extends StatelessWidget {
+class CreateAccount extends StatefulWidget {
+  @override
+  State<CreateAccount> createState() => _CreateAccountState();
+}
+
+class _CreateAccountState extends State<CreateAccount> {
   TextEditingController nameController = TextEditingController();
+
   TextEditingController emailController = TextEditingController();
+
   TextEditingController passwordController = TextEditingController();
+
   TextEditingController phoneNumberController = TextEditingController();
+
   dbHelper DBhelper = dbHelper.getInstance();
+
+  bool isPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -82,10 +94,15 @@ class CreateAccount extends StatelessWidget {
                 padding: const EdgeInsets.all(18.0),
                 child: TextField(
                   controller: passwordController,
-                  obscureText: true,
+                  obscureText: !isPasswordVisible,
                   obscuringCharacter: "*",
                   decoration: InputDecoration(
-                    suffix: Icon(Icons.visibility_off),
+                    suffixIcon: InkWell(
+                    onTap: (){
+                      isPasswordVisible = !isPasswordVisible;
+                      setState((){});
+                    },
+                    child: Icon(isPasswordVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined )),
                     hintText: "Enter your password",
                     label: Text("Password"),
                     enabledBorder: OutlineInputBorder(
@@ -139,46 +156,52 @@ class CreateAccount extends StatelessWidget {
                   ),
                   child: TextButton(
                       onPressed: () async {
-                        // if (nameController.text.isNotEmpty &&
-                        //     emailController.text.isNotEmpty &&
-                        //     passwordController.text.isNotEmpty &&
-                        //     phoneNumberController.text.isNotEmpty) {
-                        //   /// register user
-                        //   if (await DBhelper.checkForExistingUser(
-                        //       email: emailController.text.toString())) {
-                        //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        //       content: Text("Email already exists"),
-                        //       backgroundColor: Colors.blue,
-                        //     ));
-                        //   } else {
-                        //     bool check = await DBhelper.registerUser(
-                        //         newUser: UserModel(
-                        //             username: nameController.text,
-                        //             email: emailController.text,
-                        //             password: passwordController.text,
-                        //             phoneNum: phoneNumberController.text));
-                        //     log(check.toString());
-                        //     if (check) {
-                        //       ScaffoldMessenger.of(context)
-                        //           .showSnackBar(SnackBar(
-                        //         content: Text("User registered successfully"),
-                        //         backgroundColor: Colors.green,
-                        //       ));
-                        //     } else {
-                        //       ScaffoldMessenger.of(context)
-                        //           .showSnackBar(SnackBar(
-                        //         content: Text(
-                        //             "Failed to register account!! \n Please try again"),
-                        //         backgroundColor: Colors.red,
-                        //       ));
-                        //     }
-                        //   }
-                        // }
+                         if (nameController.text.isNotEmpty &&
+                            emailController.text.isNotEmpty &&
+                             passwordController.text.isNotEmpty &&
+                           phoneNumberController.text.isNotEmpty) {
+                          /// register user
+                          if (await DBhelper.checkForExistingUser(
+                              email: emailController.text.toString())) {
+                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                               content: Text("Email already exists"),
+                             backgroundColor: Colors.blue,
+                             ));
+                         } else {
+                           bool check = await DBhelper.registerUser(
+                                newUser: UserModel(
+                                    username: nameController.text,
+                                  email: emailController.text,
+                                 password: passwordController.text,
+                                phoneNum: phoneNumberController.text));
+                                 log(check.toString());
+                            if (check) {
+                             ScaffoldMessenger.of(context)
+                                 .showSnackBar(SnackBar(
+                                content: Text("Account created successfully"),
+                              backgroundColor: Colors.green,
+                             ));
+                             Navigator.pop(context);
+                            } else {
+                            ScaffoldMessenger.of(context)
+                                 .showSnackBar(SnackBar(
+                              content: Text(
+                                    "Failed to register account!! \n Please try again"),
+                              backgroundColor: Colors.red,
+                            ));
+                            }
+                           }
+                         }
                       },
                       child: Text(
-                        "Continue",
+                        "Create my account",
                         style: TextStyle(color: Colors.black, fontSize: 20),
                       ))),
+              SizedBox(height: 30,),
+              Text("Already a user," ,style: TextStyle(fontSize: 20),),
+             TextButton(onPressed: (){
+               Navigator.push(context, MaterialPageRoute(builder: (context)=> loginPage()));
+             }, child: Text("LOGIN HERE", style: TextStyle(color: Colors.blue, fontSize: 20),))
             ],
           ),
         ),

@@ -2,10 +2,10 @@
 
 class UserModel{
   int ? id;
-  String ? username;
-  String ? email;
-  String ? phoneNum;
-  String ? password;
+  String  username;
+  String  email;
+  String  phoneNum;
+ String password;
   String ? createdAt;
 
     UserModel({this.id, required this.username, required this.email, required this.password, this.createdAt, required this.phoneNum});
