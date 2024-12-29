@@ -4,10 +4,12 @@ import 'package:expense_app/Bloc%20directory/bloc%20management%20file.dart';
 import 'package:expense_app/Bloc%20directory/event%20management.dart';
 import 'package:expense_app/Bloc%20directory/state%20management.dart';
 import 'package:expense_app/Data/local/Models/Expense_model.dart';
+import 'package:expense_app/Data/local/Models/filter_expense_model.dart';
 import 'package:expense_app/UI/addExpensePage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import '../Domain/app_constants.dart';
 
 class HomePage extends StatefulWidget{
@@ -17,54 +19,18 @@ class HomePage extends StatefulWidget{
 
 class _HomePageState extends State<HomePage> {
   TextEditingController nameController = TextEditingController();
+  List<String> mMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   List<ExpenseModel> mExpense = [];
+  DateFormat mFormat = DateFormat.yMMM();
+  List<filterExpenseModel> filteredData = [];
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   //context.read<expenseBloc>().add(fetchIntialExpenseEvent());
-  //
-  // }
+   @override
+   void initState() {
+    super.initState();
+  context.read<expenseBloc>().add(fetchIntialExpenseEvent());
+
+}
   String defaultTime = "Today";
-/*  var itemsExpenseList = [
-
-    {
-      "img": "Assests/Images/shopping.png",
-      "title": "Shop",
-      "description": "Buy new clothes",
-      "amount": "-\$90",
-    },
-    {
-      "img": "Assests/Images/shopping.png",
-      "title": "Electronic",
-      "description": "Buy new iphone 14",
-      "amount": "-\$1290",
-    },
-
-
-    {
-      "img": "Assests/Images/shopping.png",
-      "title": "Transportation",
-      "description": "Trip to Malang",
-      "amount": "-\$60",
-    },
-    {
-      "img": "Assests/Images/shopping.png",
-      "title": "Shop",
-      "description": "Buy new shoes",
-      "amount": "-\$100",
-    },
-  ];
-  var daysExpenseList = [
-    {
-      "date": "Tuesday, 14",
-      "totalAmount": "-\$1380",
-    },
-    {
-      "date": "Monday, 13",
-      "totalAmount": "-\$60",
-    }
-  ];  */
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +67,8 @@ class _HomePageState extends State<HomePage> {
         ],
         backgroundColor: Colors.white,
     ),
-       body: SingleChildScrollView(
+       body: Padding(
+         padding: const EdgeInsets.all(18.0),
          child: Column(
            children: [
              Row(
@@ -142,6 +109,11 @@ class _HomePageState extends State<HomePage> {
                 ],
                 onChanged: (value) {
                   defaultTime = value ?? "Today";
+                   if(value == "Today"){
+                     mFormat = DateFormat.yMMMd();
+                   } else if(value == 'This year'){
+                     mFormat = DateFormat.yM();
+                   }
                   ss(() {});
                 });
           }),
@@ -229,10 +201,10 @@ class _HomePageState extends State<HomePage> {
              Row(
                children: [
                  const Text(
-                   "  Expense List",
+                   "Expense List",
                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                  ),
-                 SizedBox(width: 140,),
+                 SizedBox(width: 115,),
                  TextButton(onPressed: (){
                    Navigator.push(context, MaterialPageRoute(builder: (context)=> addExpense()));
                  }, child: Text("Add Expense", style: TextStyle(fontSize: 18),))
@@ -241,206 +213,186 @@ class _HomePageState extends State<HomePage> {
            SizedBox(
              height: 40,
            ),
-           BlocConsumer<expenseBloc,expenseState>(listener: (context,state){
-             if(state is expenseLoadedState){
-               var allExp = state.mExp;
-               // TODO
-                ListView.builder(itemBuilder: (context,index){
-                  return Padding(
-                    padding:  EdgeInsets.only(bottom: 11.0),
-                    child: Row(
-                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                            height: 30,
-                            width: 30,
-                            decoration: BoxDecoration(
-                                color: Color(0xFFe0e0e0),
-                                borderRadius: BorderRadius.circular(5)),
-                            child: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Image.asset(
-                                AppConstants.mCat.where((exp){
-                                  return exp.id==allExp[index].categoryId;
-                                }).toList()[0].imgPath,
-                                fit: BoxFit.contain,
-                                height: 30,
-                                width: 30,
-                              ),
-                            )),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(allExp[index].title,
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.w500),
-                            ),
-                            Text(allExp[index].desc)
-                          ],
-                        ),
-                        Spacer(),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              "-\$${allExp[index].amount}",
-                              style: TextStyle(fontSize: 18, color: Colors.pinkAccent),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                });
-             }
-             else if(state is expenseErrorState){
-               log(state.errorMsg.toString());
-             }
-           },
-           builder: (context,state){
-             if(state is expenseLoadingState){
-               return Center(child: CircularProgressIndicator(),);
-             }
-             return Center(child: Text("No Data Found"),);
-           },
+             Expanded(
+               child:
+               BlocBuilder<expenseBloc, expenseState>(builder: (_, state) {
+                 if (state is expenseLoadingState) {
+                   return Center(
+                     child: CircularProgressIndicator(),
+                   );
+                 } else if (state is expenseErrorState) {
+                   return Center(
+                     child: Text(state.errorMsg),
+                   );
+                 } else if (state is expenseLoadedState) {
+                   filterDataDateWise(allExp: state.mExp);
 
-           )
+                   return state.mExp.isNotEmpty
+                       ? ListView.builder(
+                       itemCount: filteredData.length,
+                       itemBuilder: (_, index) {
 
-           /// Expense list
-           //     BlocBuilder<expenseBloc, expenseState>(builder: (_, state){
-           //         if(state is expenseLoadingState){
-           //           return Center(child: CircularProgressIndicator(),);
-           //         }else if(state is expenseErrorState){
-           //           return Center(child: Text(state.errorMsg),);
-           //         } else if(state is expenseLoadedState){
-           //           return state.mExp.isNotEmpty ? ListView.builder(
-           //               itemCount: state.mExp.length,
-           //               itemBuilder: (_, index){
-           //
-           //
-           //
-           //               }) : Center(child: Text("No expenses yet!!"),);
-           //
-           //         }
-           //
-           //         return Container();
-           //     }),
+                         return Container(
+                           margin: EdgeInsets.only(bottom: 11),
+                           decoration: BoxDecoration(
+                             color: Colors.white,
+                             borderRadius: BorderRadius.circular(9),
+                             border: Border.all(color: Colors.grey, width: 0.5),
+                           ),
+                           child: Padding(
+                             padding: const EdgeInsets.all(10.0),
+                             child: Column(
+                               crossAxisAlignment: CrossAxisAlignment.start,
+                               children: [
+                                 Row(
+                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                   children: [
+                                     Text(
+                                       filteredData[index].expenseType,
+                                       style: TextStyle(
+                                           fontSize: 17, fontWeight: FontWeight.bold),
+                                     ),
+                                     Text(
+                                       "-\$${filteredData[index].ttlAmt}",
+                                       style: TextStyle(
+                                           fontSize: 17, fontWeight: FontWeight.bold),
+                                     ),
+                                   ],
+                                 ),
+                                 Divider(),
+                                 ListView.builder(
+                                     physics: NeverScrollableScrollPhysics(),
+                                     itemCount: filteredData[index].allExpenses.length,
+                                     shrinkWrap: true,
+                                     itemBuilder: (_, childIndex){
+                                       return Padding(
+                                         padding: const EdgeInsets.only(bottom: 11.0),
+                                         child: Row(
+                                           // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                           children: [
+                                             Container(
+                                                 height: 30,
+                                                 width: 30,
+                                                 decoration: BoxDecoration(
+                                                     color: Color(0xFFe0e0e0),
+                                                     borderRadius:
+                                                     BorderRadius.circular(5)),
+                                                 child: Padding(
+                                                   padding: const EdgeInsets.all(5.0),
+                                                   child: Image.asset(
+                                                     AppConstants.mCat
+                                                         .where((exp) {
+                                                       return exp.id ==
+                                                           filteredData[index].allExpenses[childIndex].categoryId;
+                                                     })
+                                                         .toList()[0]
+                                                         .imgPath,
+                                                     fit: BoxFit.contain,
+                                                     height: 30,
+                                                     width: 30,
+                                                   ),
+                                                 )),
+                                             SizedBox(
+                                               width: 15,
+                                             ),
+                                             Column(
+                                               crossAxisAlignment:
+                                               CrossAxisAlignment.start,
+                                               children: [
+                                                 Text(
+                                                   filteredData[index].allExpenses[childIndex].title,
+                                                   style: TextStyle(
+                                                       fontSize: 18,
+                                                       fontWeight: FontWeight.w500, color: Colors.blue),
+                                                 ),
+                                                 Text(filteredData[index].allExpenses[childIndex].desc)
+                                               ],
+                                             ),
+                                             Spacer(),
+                                             Column(
+                                               crossAxisAlignment: CrossAxisAlignment.end,
+                                               children: [
+                                                 Text(
+                                                   mFormat.format(DateTime.fromMillisecondsSinceEpoch(int.parse(filteredData[index].allExpenses[childIndex].createdAt))),
+                                                   style: TextStyle(
+                                                       fontSize: 11, color: Colors.grey),
+                                                 ),
+                                                 Text(
+                                                   "-\$${filteredData[index].allExpenses[childIndex].amount}",
+                                                   style: TextStyle(
+                                                       fontSize: 18,
+                                                       color: Colors.pinkAccent),
+                                                 ),
+                                               ],
+                                             ),
+                                           ],
+                                         ),
+                                       );
+                                     })
+                               ],
+                             ),
+                           ),
+                         );
 
-               ],
-    ),
-    ),
+
+                       })
+                       : Center(
+                     child: Text("No expenses yet!!"),
+                   );
+                 }
+
+                 return Container();
+               }),
+             )
+           ],
+         ),
+       ),
     );
 
+
+
+
                       }
-                    }
-           /*  SizedBox(
-               width: double.infinity,
-               height: 450,
-               child: ListView.builder(
-                 itemCount: daysExpenseList.length,
-                 itemBuilder: (context, index) {
-                   return Padding(
-                     padding: const EdgeInsets.symmetric(vertical: 10),
-                     child: Container(
-                       width: double.infinity,
-                       height: 200,
-                       decoration: BoxDecoration(
-                           borderRadius: BorderRadius.circular(10),
-                           border: Border.all(
-                               color: const Color(0xffE0E9F7), width: 2)),
-                       child: Padding(
-                         padding: const EdgeInsets.all(10),
-                         child: Column(
-                           children: [
-                             Padding(
-                               padding: const EdgeInsets.symmetric(horizontal: 18),
-                               child: Row(
-                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                 children: [
-                                   Text(
-                                     daysExpenseList[index]["date"].toString(),
-                                     style: const TextStyle(
-                                         fontSize: 14,
-                                         fontWeight: FontWeight.bold),
-                                   ),
-                                   Text(
-                                     daysExpenseList[index]["totalAmount"].toString(),
-                                     style: const TextStyle(
-                                         fontSize: 14,
-                                         fontWeight: FontWeight.bold),
-                                   )
-                                 ],
-                               ),
-                             ),
-                             const SizedBox(
-                               height: 15,
-                             ),
-                             Padding(
-                               padding: const EdgeInsets.symmetric(horizontal: 15),
-                               child: Container(
-                                 width: double.infinity,
-                                 height: 2,
-                                 color: const Color(0xffE0E9F7),
-                               ),
-                             ),
-                             const SizedBox(
-                               height: 5,
-                             ),
-                             Flexible(
-                               child: SizedBox(
-                                 width: double.infinity,
-                                 child: ListView.builder(
-                                   itemCount: itemsExpenseList.length,
-                                   itemBuilder: (context, index) {
-                                     return ListTile(
-                                       leading: Container(
-                                         width: 40,
-                                         height: 40,
-                                         decoration: BoxDecoration(
-                                             borderRadius:
-                                             BorderRadius.circular(3),
-                                             color: const Color(0xffE6E9F8)),
-                                         child: Padding(
-                                           padding: const EdgeInsets.all(8),
-                                           child: Image.asset(
-                                             itemsExpenseList[index]["img"].toString(),
-                                           ),
-                                         ),
-                                       ),
-                                       title: Text(
-                                         itemsExpenseList[index]["title"].toString(),
-                                         style: const TextStyle(fontSize: 14),
-                                       ),
-                                       subtitle: Text(
-                                         itemsExpenseList[index]
-                                         ["description"].toString(),
-                                         style: const TextStyle(
-                                             fontSize: 14, color: Colors.grey),
-                                       ),
-                                       trailing: Text(
-                                         itemsExpenseList[index]["amount"].toString(),
-                                         style: const TextStyle(
-                                             fontSize: 14,
-                                             color: Color(0xffDB6565)),
-                                       ),
-                                     );
-                                   },
-                                 ),
-                               ),
-                             )
-                           ],
-                         ),
-                       ),
-                     ),
-                   );
-                 },
-               ),
-             ) */
+
+      void   filterDataDateWise({required List<ExpenseModel> allExp}){
+         filteredData.clear();
+         List<String> uniqueDates= [];
 
 
+         for(ExpenseModel eachExp in allExp){
+            String eachDate = mFormat.format(DateTime.fromMillisecondsSinceEpoch(int.parse(eachExp.createdAt)));
+            
+            print(eachDate);
+            if(!uniqueDates.contains(eachDate)){
+              uniqueDates.add(eachDate);
+            }
+         }
+         print(uniqueDates);
+
+         for(String eachDate in uniqueDates){
+           num totalAmt = 0.0;
+           List<ExpenseModel>  eachDateExp = [];
+
+           for(ExpenseModel eachExp in allExp){
+             String expDate = mFormat.format(DateTime.fromMillisecondsSinceEpoch(int.parse(eachExp.createdAt)));
+
+             if(eachDate == expDate){
+               eachDateExp.add(eachExp);
+
+               if(eachExp.expenseType=='Debit'){
+                 totalAmt +=eachExp.amount;
+               }else{
+                 /// credit
+                 totalAmt -=eachExp.amount;
+               }
+             }
+           }
+           filteredData.add(filterExpenseModel(
+               expenseType: eachDate,
+               ttlAmt: totalAmt,
+               allExpenses: eachDateExp));
+         }
+      }
 
 
-
+}

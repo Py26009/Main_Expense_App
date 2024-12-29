@@ -7,8 +7,8 @@ class ExpenseModel{
   String expenseType;
   String title;
   String desc;
-  double amount;
-  double balance;
+  int amount;
+  int balance;
   int categoryId;
   String createdAt ;
 
@@ -27,8 +27,8 @@ class ExpenseModel{
   factory ExpenseModel.forMap(Map<String, dynamic> map){
     return ExpenseModel(
         id: map[dbHelper.TABLE_COLUMN_ID],
-        userId: map[dbHelper.EXPENSE_COLUMN_EXPENSETYPE],
-        expenseType: map[dbHelper.EXPENSE_COLUMN_ID],
+        userId: map[dbHelper.EXPENSE_COLUMN_USER_ID],
+        expenseType: map[dbHelper.EXPENSE_COLUMN_EXPENSETYPE],
         title: map[dbHelper.EXPENSE_COLUMN_TITLE],
         desc: map[dbHelper.EXPENSE_COLUMN_DESCRIPTION],
         amount: map[dbHelper.EXPENSE_COLUMN_AMOUNT],

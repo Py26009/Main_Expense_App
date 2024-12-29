@@ -26,11 +26,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
- /* String uid ='';
+  String uid ='';
   @override
   void initState() {
     super.initState();
-    getPrefsValue();
+   // getPrefsValue();
   }
 
    void getPrefsValue()async{
@@ -39,7 +39,7 @@ class _MyAppState extends State<MyApp> {
     setState(() {
 
     });
-   } */
+   }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: HomePage()
+      home: Splashscreen()
       /*uid!="" ? Splashscreen() : loginPage() */,
     );
   }

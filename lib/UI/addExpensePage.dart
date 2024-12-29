@@ -9,7 +9,9 @@ import 'package:expense_app/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 class addExpense extends StatefulWidget{
 
@@ -29,38 +31,28 @@ class _addExpenseState extends State<addExpense> {
   List<String> mExpenseType = ["Debit", "Credit", "lend", "Borrow", "Loan"];
 
   int selectedCatIndex = -1;
+  DateTime selectedDate = DateTime.now();
+  DateFormat mFormat = DateFormat.yMMMd();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.all(16.0),
-        ),
+        leading: IconButton(onPressed: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>HomePage()));
+        }, icon:Icon(Icons.keyboard_arrow_left, size: 28, color: Colors.black,)),
         backgroundColor: Color(0xFFB388FF),
         foregroundColor: Colors.white,
-        leadingWidth: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(21),
-          ),
-          side: BorderSide(
-            color: Colors.grey,
-            width: 2,
-          ),
-        ),
-        elevation: 11,
-        shadowColor: Colors.blue,
       ),
       body: Column(
         children: [
           SizedBox(
-            height: 30,
+            height: 15,
           ),
           Center(child: Text("Add your Expense", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),)),
 
            Padding(
-             padding: const EdgeInsets.all(25.0),
+             padding: const EdgeInsets.all(22.0),
              child: TextField(
                controller: titleController,
                decoration: mfieldDecor(hint: "Enter the title",
@@ -84,7 +76,7 @@ class _addExpenseState extends State<addExpense> {
             ),
           ),
           SizedBox(
-            height: 30,
+            height: 10,
           ),
 
           /// DROP DOWN FOR EXPENSE TYPE
@@ -136,7 +128,7 @@ class _addExpenseState extends State<addExpense> {
                return DropdownMenuEntry(value: expenseType, label: expenseType);
              }).toList());
            }),
-          SizedBox(height: 50,),
+          SizedBox(height: 30,),
       InkWell(
         onTap: (){
           showModalBottomSheet(context: context, builder: (_){
@@ -185,8 +177,56 @@ class _addExpenseState extends State<addExpense> {
           ):Center(child: Text("Choose a Category", style: TextStyle(fontSize: 18),)),
         )
       ),
+          SizedBox(height: 30,),
+          InkWell(
+              onTap: () async{
+                if(Platform.isIOS || Platform.isMacOS){
+                   showCupertinoModalPopup(context: context,
+                       builder: (_){
+                     return Container(
+                       height: 100,
+                       color: Colors.grey.shade100,
+                       child: CupertinoDatePicker(
+                         mode: CupertinoDatePickerMode.dateAndTime,
+                         initialDateTime: DateTime.now(),
+                           minimumDate: DateTime.now().subtract(Duration(days: 365)),
+                           minimumYear: DateTime.now().year - 1,
+                           maximumYear: DateTime.now().year,
+                           maximumDate: DateTime.now(),
+                           onDateTimeChanged: (selectedValue){
+                           selectedDate = selectedValue;
+                           setState(() {
+
+                           });
+                           }),
+                     );
+                       });
+                }else{
+                  selectedDate= await showDatePicker(context: context,
+                      firstDate: DateTime(DateTime.now().year - 1),
+                      lastDate: DateTime.now()) ?? DateTime.now();
+                  setState(() {
+
+                  });
+                }
+              },
+              child: Container(
+                width: 345,
+                height: 55,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                        width: 1,
+                        color: Colors.black
+                    )
+                ),
+                child: Center(
+                  child: Text(mFormat.format(selectedDate).toString()),
+                )
+              ),
+          ),
       SizedBox(
-        height: 40,
+        height: 50,
       ),
       Container(
         height: 50,
@@ -209,8 +249,8 @@ class _addExpenseState extends State<addExpense> {
                expenseType: defaultExpenseType,
                title: titleController.text,
                desc: descController.text,
-                createdAt: DateTime.now().millisecondsSinceEpoch.toString(),
-               amount: double.parse(amountController.text),
+                createdAt: selectedDate.millisecondsSinceEpoch.toString(),
+               amount: int.parse(amountController.text),
                 balance: 0,
                categoryId: AppConstants.mCat[selectedCatIndex].id)) as expenseEvent);
 

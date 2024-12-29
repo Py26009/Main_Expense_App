@@ -1,15 +1,24 @@
 import 'dart:async';
 
+import 'package:expense_app/UI/HomePage.dart';
 import 'package:expense_app/UI/login%20page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Splashscreen extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    Timer(Duration(seconds: 4),(){
-     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>loginPage()));
+    Timer(Duration(seconds: 4),() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var getValue = prefs.getString("userID");
+
+    if(getValue!= null){
+     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> HomePage()));
+    }else{
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>loginPage()));
+    }
     } );
     return Scaffold(
       appBar: AppBar(
