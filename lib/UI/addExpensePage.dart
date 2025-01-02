@@ -43,16 +43,15 @@ class _addExpenseState extends State<addExpense> {
         }, icon:Icon(Icons.keyboard_arrow_left, size: 28, color: Colors.black,)),
         backgroundColor: Color(0xFFB388FF),
         foregroundColor: Colors.white,
+        title: Text("Add your expense", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
       ),
       body: Column(
         children: [
           SizedBox(
-            height: 15,
+            height: 30,
           ),
-          Center(child: Text("Add your Expense", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),)),
-
-           Padding(
-             padding: const EdgeInsets.all(22.0),
+          Padding(
+             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
              child: TextField(
                controller: titleController,
                decoration: mfieldDecor(hint: "Enter the title",

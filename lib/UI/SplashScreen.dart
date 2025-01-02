@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:expense_app/UI/HomePage.dart';
+import 'package:expense_app/UI/bottomNavPage.dart';
 import 'package:expense_app/UI/login%20page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ class Splashscreen extends StatelessWidget{
     var getValue = prefs.getString("userID");
 
     if(getValue!= null){
-     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> HomePage()));
+     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> bottomNavPage()));
     }else{
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>loginPage()));
     }

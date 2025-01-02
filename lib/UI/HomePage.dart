@@ -21,8 +21,9 @@ class _HomePageState extends State<HomePage> {
   TextEditingController nameController = TextEditingController();
   List<String> mMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   List<ExpenseModel> mExpense = [];
-  DateFormat mFormat = DateFormat.yMMM();
+  DateFormat mFormat = DateFormat.yMMMd();
   List<filterExpenseModel> filteredData = [];
+
 
    @override
    void initState() {
@@ -67,8 +68,9 @@ class _HomePageState extends State<HomePage> {
         ],
         backgroundColor: Colors.white,
     ),
-       body: Padding(
-         padding: const EdgeInsets.all(18.0),
+       body:
+       Padding(
+         padding: const EdgeInsets.all(11.0),
          child: Column(
            children: [
              Row(
@@ -97,26 +99,27 @@ class _HomePageState extends State<HomePage> {
                    ],
                  ),
                  SizedBox(width:100),
-          StatefulBuilder(builder: (_, ss) {
-            return DropdownButton(
-              dropdownColor: Colors.grey.shade100,
-                value: defaultTime,
-                items: [
-                  DropdownMenuItem(child: Text("Today"), value: "Today",),
-                  DropdownMenuItem(child: Text("This week"), value: "This week",),
-                  DropdownMenuItem(child: Text("This month"), value: "This month",),
-                  DropdownMenuItem(child: Text("This year"), value: "This year",),
-                ],
-                onChanged: (value) {
-                  defaultTime = value ?? "Today";
-                   if(value == "Today"){
-                     mFormat = DateFormat.yMMMd();
-                   } else if(value == 'This year'){
-                     mFormat = DateFormat.yM();
-                   }
-                  ss(() {});
-                });
-          }),
+          DropdownButton(
+            dropdownColor: Colors.grey.shade100,
+              value: "Date wise",
+              items: [
+                DropdownMenuItem(child: Text("Date wise"), value: "Date wise",),
+                DropdownMenuItem(child: Text("Month wise"), value: "Month wise",),
+                DropdownMenuItem(child: Text("Year wise"), value: "Year wise",),
+              ],
+              onChanged: (value) {
+                defaultTime = value ?? "Today";
+                if(value== "Date wise"){
+                  mFormat = DateFormat.yMMMMd();
+                } else if(value == "Month wise"){
+                  mFormat = DateFormat.yM();
+                } else if(value == "Year wise"){
+                  mFormat = DateFormat.y();
+                }
+               setState(() {
+
+               });
+              }),
                ],
                  ),
              SizedBox(
@@ -225,6 +228,7 @@ class _HomePageState extends State<HomePage> {
                      child: Text(state.errorMsg),
                    );
                  } else if (state is expenseLoadedState) {
+                   print(state.mExp);
                    filterDataDateWise(allExp: state.mExp);
 
                    return state.mExp.isNotEmpty
@@ -343,16 +347,17 @@ class _HomePageState extends State<HomePage> {
 
                  return Container();
                }),
-             )
+             ),
            ],
          ),
+
        ),
     );
 
 
 
 
-                      }
+  }
 
       void   filterDataDateWise({required List<ExpenseModel> allExp}){
          filteredData.clear();
