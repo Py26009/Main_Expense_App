@@ -262,7 +262,7 @@ import '../Data/local/Models/filter_expense_model.dart';
                  child: Container(
                    decoration: BoxDecoration(
                      borderRadius: BorderRadius.circular(10),
-                     border: Border.all( color: Colors.grey),
+                     border: Border.all( color: Colors.grey.shade200),
                    ),
                    child: ListTile(
                      leading: Container(
