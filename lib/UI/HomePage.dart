@@ -321,8 +321,9 @@ class _HomePageState extends State<HomePage> {
                                                    style: TextStyle(
                                                        fontSize: 11, color: Colors.grey),
                                                  ),
+
                                                  Text(
-                                                   "-\$${filteredData[index].allExpenses[childIndex].amount}",
+                                                       filteredData[index].ttlAmt>= 0 ? "-${filteredData[index].ttlAmt.toString()}" : "+${(-filteredData[index].ttlAmt).toString()}",
                                                    style: TextStyle(
                                                        fontSize: 18,
                                                        color: Colors.pinkAccent),
