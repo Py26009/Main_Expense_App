@@ -1,6 +1,7 @@
 import 'package:expense_app/UI/HomePage.dart';
 import 'package:expense_app/UI/addExpensePage.dart';
 import 'package:expense_app/UI/bottomNavProvider.dart';
+import 'package:expense_app/UI/settings_page.dart';
 import 'package:expense_app/UI/statisticsPage.dart';
 import 'package:expense_app/main.dart';
 import 'package:flutter/cupertino.dart';
@@ -37,7 +38,7 @@ class _bottomNavPageState extends State<bottomNavPage> {
           child: Icon(Icons.add, color: Colors.white,),
         ),
             label: " "),
-        BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: "")
+        BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: ""),
       ],
           iconSize: 30,
         selectedItemColor: Colors.pinkAccent,
