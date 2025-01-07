@@ -1,6 +1,7 @@
 import 'package:expense_app/Data/local/db_helper.dart';
 import 'package:expense_app/UI/HomePage.dart';
 import 'package:expense_app/UI/SplashScreen.dart';
+import 'package:expense_app/UI/bottomNavPage.dart';
 import 'package:expense_app/UI/createAccount.dart';
 
 import '';
@@ -121,7 +122,7 @@ class loginPage extends StatelessWidget {
                           Navigator.push(
                               context,
                              MaterialPageRoute(
-                                   builder: (context) => HomePage()));
+                                   builder: (context) => bottomNavPage()));
                          } else {
                            ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text("Invalid Credentials")));
@@ -205,8 +206,12 @@ class loginPage extends StatelessWidget {
               ],
             )
           ],
-        ),
+        )
       ),
     );
   }
+
+
+
+
 }

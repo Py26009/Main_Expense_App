@@ -11,12 +11,13 @@ import 'package:expense_app/UI/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(MultiBlocProvider(providers: ({}),
-      child: child));
+  runApp(BlocProvider(
+    create: (context)=> expenseBloc(DBHelper: dbHelper.getInstance())..add(fetchIntialExpenseEvent()),
+
+      child: const MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -46,7 +47,6 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      themeMode: context.watch<themeProvider>().getThemeValue() ? ThemeMode.dark: ThemeMode.light,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

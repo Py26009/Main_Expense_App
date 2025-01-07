@@ -247,6 +247,12 @@ class _HomePageState extends State<HomePage> {
                  "Expense List",
                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                ),
+               SizedBox(
+                 width: 140
+               ),
+               TextButton(onPressed: (){
+                 Navigator.push(context, MaterialPageRoute(builder: (context)=>addExpense()));
+               }, child: Text("Add Expense", style: TextStyle(fontSize: 16),))
              ],
            ),
            SizedBox(

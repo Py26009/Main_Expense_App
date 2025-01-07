@@ -45,42 +45,255 @@ class _addExpenseState extends State<addExpense> {
         foregroundColor: Colors.white,
         title: Text("Add your expense", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
       ),
-      body: Column(
-        children: [
-          SizedBox(
-            height: 30,
-          ),
-          Padding(
-             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-             child: TextField(
-               controller: titleController,
-               decoration: mfieldDecor(hint: "Enter the title",
-                   heading: "title"),
-               ),
-           ),
-          Padding(
-            padding: const EdgeInsets.all(25.0),
-            child: TextField(
-              controller: descController,
-              decoration: mfieldDecor(hint: "Enter the description",
-                  heading: "Description"),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(25.0),
-            child: TextField(
-              controller: amountController,
-              decoration: mfieldDecor(hint: "Enter the amount",
-                  heading: "Amount"),
-            ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: MediaQuery.of(context).orientation == Orientation.portrait ? Column(
+          children: [
+            SizedBox(height: 30,),
+             titleColumn(),
+              descriptionColumn(),
+              amountColumn(),
 
-          /// DROP DOWN FOR EXPENSE TYPE
-          /// First Method
-        /* StatefulBuilder(builder: (_, ss){
+            SizedBox(height: 10,),
+              optionDropDown(),
+
+            SizedBox(height: 30,),
+            categoryColumn(),
+
+            SizedBox(height: 30,),
+            dateColumn(),
+            SizedBox(height: 50,),
+             addColumn(),
+        ]
+        ) : SingleChildScrollView(
+          child: Row(
+            children: [
+              SizedBox(height: 30,),
+              titleColumn(),
+              descriptionColumn(),
+              amountColumn(),
+          
+              SizedBox(height: 10,),
+              optionDropDown(),
+          
+              SizedBox(height: 30,),
+              categoryColumn(),
+          
+              SizedBox(height: 30,),
+              dateColumn(),
+              SizedBox(height: 50,),
+              addColumn(),
+            ],
+          ),
+        )
+      )
+    );
+
+  }
+
+  Widget titleColumn(){
+    return  Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+      child: TextField(
+        controller: titleController,
+        decoration: mfieldDecor(hint: "Enter the title",
+            heading: "title"),
+      ),
+    );
+  }
+
+  Widget descriptionColumn(){
+    return Padding(
+      padding: const EdgeInsets.all(25.0),
+      child: TextField(
+        controller: descController,
+        decoration: mfieldDecor(hint: "Enter the description",
+            heading: "Description"),
+      ),
+    );
+  }
+
+  Widget amountColumn(){
+    return Padding(
+      padding: const EdgeInsets.all(25.0),
+      child: TextField(
+        controller: amountController,
+        decoration: mfieldDecor(hint: "Enter the amount",
+            heading: "Amount"),
+      ),
+    );
+  }
+
+  Widget optionDropDown(){
+    return  StatefulBuilder(builder: (_,ss){
+      return DropdownMenu(
+          width:  350,
+          inputDecorationTheme: InputDecorationTheme(
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: BorderSide(width: 1),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: BorderSide(width: 1),
+              )
+          ),
+          initialSelection: defaultExpenseType,
+          onSelected: (value){
+            defaultExpenseType = value ?? "Debit";
+          },
+          dropdownMenuEntries: mExpenseType.map((expenseType){
+            return DropdownMenuEntry(value: expenseType, label: expenseType);
+          }).toList());
+    });
+  }
+
+  Widget categoryColumn(){
+    return InkWell(
+        onTap: (){
+          showModalBottomSheet(context: context, builder: (_){
+            return Container(
+              padding: EdgeInsets.symmetric(vertical: 22),
+              child: GridView.builder(
+                itemCount: AppConstants.mCat.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4),
+                itemBuilder: (_, index){
+                  return InkWell(
+                    onTap: (){
+                      selectedCatIndex = index;
+                      setState(() {
+
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: Column(
+                      children: [
+                        Image.asset(AppConstants.mCat[index].imgPath, width: 40, height: 40,),
+                        Text(AppConstants.mCat[index].title, maxLines: 1, overflow: TextOverflow.ellipsis,)
+                      ],
+                    ),
+                  );
+                },),
+            );
+          });
+        },
+        child: Container(
+          width: 345,
+          height: 55,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                  width: 1,
+                  color: Colors.black
+              )
+          ),
+          child: selectedCatIndex >=0 ? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(AppConstants.mCat[selectedCatIndex].imgPath, width: 45,),
+              Text(" - ${AppConstants.mCat[selectedCatIndex].title}", style: TextStyle(fontSize: 18),)
+            ],
+          ):Center(child: Text("Choose a Category", style: TextStyle(fontSize: 18),)),
+        )
+    );
+  }
+
+  Widget dateColumn(){
+    return InkWell(
+      onTap: () async{
+        if(Platform.isIOS || Platform.isMacOS){
+          showCupertinoModalPopup(context: context,
+              builder: (_){
+                return Container(
+                  height: 100,
+                  color: Colors.grey.shade100,
+                  child: CupertinoDatePicker(
+                      mode: CupertinoDatePickerMode.dateAndTime,
+                      initialDateTime: DateTime.now(),
+                      minimumDate: DateTime.now().subtract(Duration(days: 365)),
+                      minimumYear: DateTime.now().year - 1,
+                      maximumYear: DateTime.now().year,
+                      maximumDate: DateTime.now(),
+                      onDateTimeChanged: (selectedValue){
+                        selectedDate = selectedValue;
+                        setState(() {
+
+                        });
+                      }),
+                );
+              });
+        }else{
+          selectedDate= await showDatePicker(context: context,
+              firstDate: DateTime(DateTime.now().year - 1),
+              lastDate: DateTime.now()) ?? DateTime.now();
+          setState(() {
+
+          });
+        }
+      },
+      child: Container(
+          width: 345,
+          height: 55,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                  width: 1,
+                  color: Colors.black
+              )
+          ),
+          child: Center(
+            child: Text(mFormat.format(selectedDate).toString()),
+          )
+      ),
+    );
+  }
+
+  Widget addColumn(){
+    return  Container(
+      height: 50,
+      width: 200,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.black, width: 1),
+        color: Color(0xFFB388FF),
+      ),
+      child: TextButton(onPressed: () async{
+        if(titleController.text.isNotEmpty &&
+            descController.text.isNotEmpty &&
+            amountController.text.isNotEmpty &&
+            selectedCatIndex>-1){
+          dbHelper DBHelper = dbHelper.getInstance();
+          var prefs = await SharedPreferences.getInstance();
+          String uid = prefs.getString("userID") ?? "";
+
+          context.read<expenseBloc>().add(addExpenseEvent(newExp: ExpenseModel(userId:int.parse(uid),
+              expenseType: defaultExpenseType,
+              title: titleController.text,
+              desc: descController.text,
+              createdAt: selectedDate.millisecondsSinceEpoch.toString(),
+              amount: int.parse(amountController.text),
+              balance: 0,
+              categoryId: AppConstants.mCat[selectedCatIndex].id)) as expenseEvent);
+
+          Navigator.pop(context);
+
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Expense Added Succesfully"), backgroundColor: Colors.greenAccent,));
+
+        }
+      },
+        child:
+        Text("Add Successfully", style: TextStyle(fontSize: 18),
+        ),
+      ),
+    );
+  }
+}
+
+
+/// DROP DOWN FOR EXPENSE TYPE
+/// First Method
+/* StatefulBuilder(builder: (_, ss){
            return  DropdownButton(
                value: defaultExpenseType,
                items: [
@@ -94,8 +307,8 @@ class _addExpenseState extends State<addExpense> {
                  ss((){});
                });
          }) */
-          /// SECOND METHOD
-               /*  StatefulBuilder(builder: (_,ss){
+/// SECOND METHOD
+/*  StatefulBuilder(builder: (_,ss){
                    return DropdownButton(
                      value: defaultExpenseType,
                        items: mExpenseType.map((expenseType){
@@ -106,167 +319,3 @@ class _addExpenseState extends State<addExpense> {
                        ss((){});
                    });
                  }), */
-           StatefulBuilder(builder: (_,ss){
-             return DropdownMenu(
-               width:  350,
-               inputDecorationTheme: InputDecorationTheme(
-                 enabledBorder: OutlineInputBorder(
-                         borderRadius: BorderRadius.circular(24),
-                   borderSide: BorderSide(width: 1),
-                     ),
-                 focusedBorder: OutlineInputBorder(
-                   borderRadius: BorderRadius.circular(24),
-                   borderSide: BorderSide(width: 1),
-                 )
-               ),
-               initialSelection: defaultExpenseType,
-                 onSelected: (value){
-                 defaultExpenseType = value ?? "Debit";
-                 },
-                 dropdownMenuEntries: mExpenseType.map((expenseType){
-               return DropdownMenuEntry(value: expenseType, label: expenseType);
-             }).toList());
-           }),
-          SizedBox(height: 30,),
-      InkWell(
-        onTap: (){
-          showModalBottomSheet(context: context, builder: (_){
-            return Container(
-              padding: EdgeInsets.symmetric(vertical: 22),
-              child: GridView.builder(
-                itemCount: AppConstants.mCat.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4),
-                  itemBuilder: (_, index){
-                return InkWell(
-                  onTap: (){
-                    selectedCatIndex = index;
-                    setState(() {
-
-                    });
-                    Navigator.pop(context);
-                  },
-                  child: Column(
-                    children: [
-                        Image.asset(AppConstants.mCat[index].imgPath, width: 40, height: 40,),
-                      Text(AppConstants.mCat[index].title, maxLines: 1, overflow: TextOverflow.ellipsis,)
-                    ],
-                  ),
-                );
-                  },),
-            );
-          });
-        },
-        child: Container(
-          width: 345,
-          height: 55,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              width: 1,
-              color: Colors.black
-            )
-          ),
-          child: selectedCatIndex >=0 ? Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(AppConstants.mCat[selectedCatIndex].imgPath, width: 45,),
-              Text(" - ${AppConstants.mCat[selectedCatIndex].title}", style: TextStyle(fontSize: 18),)
-            ],
-          ):Center(child: Text("Choose a Category", style: TextStyle(fontSize: 18),)),
-        )
-      ),
-          SizedBox(height: 30,),
-          InkWell(
-              onTap: () async{
-                if(Platform.isIOS || Platform.isMacOS){
-                   showCupertinoModalPopup(context: context,
-                       builder: (_){
-                     return Container(
-                       height: 100,
-                       color: Colors.grey.shade100,
-                       child: CupertinoDatePicker(
-                         mode: CupertinoDatePickerMode.dateAndTime,
-                         initialDateTime: DateTime.now(),
-                           minimumDate: DateTime.now().subtract(Duration(days: 365)),
-                           minimumYear: DateTime.now().year - 1,
-                           maximumYear: DateTime.now().year,
-                           maximumDate: DateTime.now(),
-                           onDateTimeChanged: (selectedValue){
-                           selectedDate = selectedValue;
-                           setState(() {
-
-                           });
-                           }),
-                     );
-                       });
-                }else{
-                  selectedDate= await showDatePicker(context: context,
-                      firstDate: DateTime(DateTime.now().year - 1),
-                      lastDate: DateTime.now()) ?? DateTime.now();
-                  setState(() {
-
-                  });
-                }
-              },
-              child: Container(
-                width: 345,
-                height: 55,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                        width: 1,
-                        color: Colors.black
-                    )
-                ),
-                child: Center(
-                  child: Text(mFormat.format(selectedDate).toString()),
-                )
-              ),
-          ),
-      SizedBox(
-        height: 50,
-      ),
-      Container(
-        height: 50,
-        width: 200,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.black, width: 1),
-          color: Color(0xFFB388FF),
-        ),
-        child: TextButton(onPressed: () async{
-          if(titleController.text.isNotEmpty &&
-              descController.text.isNotEmpty &&
-              amountController.text.isNotEmpty &&
-               selectedCatIndex>-1){
-              dbHelper DBHelper = dbHelper.getInstance();
-             var prefs = await SharedPreferences.getInstance();
-                String uid = prefs.getString("userID") ?? "";
-
-               context.read<expenseBloc>().add(addExpenseEvent(newExp: ExpenseModel(userId:int.parse(uid),
-               expenseType: defaultExpenseType,
-               title: titleController.text,
-               desc: descController.text,
-                createdAt: selectedDate.millisecondsSinceEpoch.toString(),
-               amount: int.parse(amountController.text),
-                balance: 0,
-               categoryId: AppConstants.mCat[selectedCatIndex].id)) as expenseEvent);
-
-             Navigator.pop(context);
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Expense Added Succesfully"), backgroundColor: Colors.greenAccent,));
-
-    }
-    },
-          child:
-          Text("Add Successfully", style: TextStyle(fontSize: 18),
-    ),
-      ),
-      ),
-    ],
-      ),
-    );
-
-  }
-}
