@@ -2,12 +2,12 @@ import 'package:flutter/cupertino.dart';
 
 class themeProvider extends ChangeNotifier{
 
-    bool _isDarkTheme = false;
+    bool _isTheme = false;
 
-    bool getThemeValue()=> _isDarkTheme;
+   bool getThemeValue()=> _isTheme;
 
     void setThemeValue(bool value){
-      _isDarkTheme = value;
+      _isTheme = value;
       notifyListeners();
     }
 

@@ -276,7 +276,7 @@ class _addExpenseState extends State<addExpense> {
               balance: 0,
               categoryId: AppConstants.mCat[selectedCatIndex].id)) as expenseEvent);
 
-          Navigator.pop(context);
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomePage()));
 
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Expense Added Succesfully"), backgroundColor: Colors.greenAccent,));
 

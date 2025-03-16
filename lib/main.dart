@@ -11,13 +11,21 @@ import 'package:expense_app/UI/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(BlocProvider(
+  runApp(
+  MultiBlocProvider(providers:[
+    BlocProvider(create: (context)=> expenseBloc(DBHelper: dbHelper.getInstance())..add(fetchIntialExpenseEvent())),
+    ChangeNotifierProvider(create: (context)=> themeProvider()),
+
+  ],
+      child: const MyApp()));
+     /* BlocProvider(
     create: (context)=> expenseBloc(DBHelper: dbHelper.getInstance())..add(fetchIntialExpenseEvent()),
 
-      child: const MyApp()));
+      child: const MyApp()));*/
 }
 
 class MyApp extends StatefulWidget {
@@ -46,11 +54,10 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      themeMode: context.watch<themeProvider>().getThemeValue() ? ThemeMode.dark :ThemeMode.light,
+      darkTheme: ThemeData(brightness: Brightness.dark),
+      theme: ThemeData(brightness: Brightness.light),
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
       home: Splashscreen()
       /*uid!="" ? Splashscreen() : loginPage() */,
     );
